@@ -10,30 +10,23 @@ A concept to more easily define keyframe / multi-step animations in SwiftUI, wit
 struct ContentView: View {
     var body: some View {
         VStack {
-            Animated {
-                Image(systemName: "globe")
-                
-                Animate(\.opacity, from: 0, to: 1)
-                Animate(\.scale, from: 1.0, to: 1.5)
-                Animate(\.offsetY, from: 0, to: 50)
-
-                Animate(\.scale, from: 1.5, to: 1).after(1.5)
-            }
+            Image(systemName: "globe")
+                .keyFrame {
+                    // These properties will be animated when the `Image` appears.
+                    $0.opacity(from: 0, to: 1)
+                    $0.offsetY(from: 0, to: 50)
+                    $0.scale(from: 1, to: 1.5)
+                }
+                .keyFrame(at: 2) {
+                    // X-offset will be animated 2 seconds later.
+                    $0.offsetX(from: 0, to: 50)
+                }
         }
     }
 }
 ```
 
 ### To-Do:
-- [ ] Provide a more ergonomic way to delay a group of animations (could require result builder changes)
-    ```swift
-    Animated {
-        Image(systemName: "globe")
-        
-        After(0.5) {
-            Animate(\.opacity, from: 0, to: 1)
-        }
-    }
-    ```
 - [ ] Write documentation
-- [ ] Support animation of arbitrary properties (via closure?)
+- [ ] Support for animation of arbitrary properties (via closure?)
+- [ ] Support for animation from 'last' value, without having to specify `from`

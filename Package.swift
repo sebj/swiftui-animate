@@ -12,13 +12,13 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "animate",
-            targets: ["animate"]
+            name: "Animate",
+            targets: ["Animate"]
         )
     ],
     targets: [
         .target(
-            name: "animate"
+            name: "Animate"
         )
     ]
 )

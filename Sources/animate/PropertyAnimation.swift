@@ -1,46 +1,45 @@
 import SwiftUI
 
-public typealias Animate = PropertyAnimation
-
-public struct PropertyAnimation<Value> where Value: Equatable {
-    
-    let property: WritableKeyPath<AnimatableValues, Value>
-    let from: AnimatableValues
-    let to: AnimatableValues
-    var animation: Animation = .default
-    
-    public init(
-        _ property: WritableKeyPath<AnimatableValues, Value>,
-        from: Value,
-        to: Value,
-        _ animation: Animation = .default
-    ) {
-        var fromValues = AnimatableValues()
-        fromValues[keyPath: property] = from
-        
-        var toValues = AnimatableValues()
-        toValues[keyPath: property] = to
-        
-        self.init(property, from: fromValues, to: toValues, animation)
-    }
-    
-    fileprivate init(
-        _ property: WritableKeyPath<AnimatableValues, Value>,
-        from: AnimatableValues,
-        to: AnimatableValues,
-        _ animation: Animation = .default
-    ) {
-        self.property = property
-        self.from = from
-        self.to = to
-        self.animation = animation
-    }
+public struct KeyFrame {
+    let time: Double
+    var from = AnimatableValues()
+    var to = AnimatableValues()
+    public var animation = Animation.default
     
     public func after(_ delay: Double) -> Self {
-        .init(property, from: from, to: to, animation.delay(delay))
+        .init(time: time + delay, from: from, to: to, animation: animation)
     }
 }
 
-extension PropertyAnimation where Value == Bool {
-    static let identity: Self = PropertyAnimation(\.identity, from: true, to: true)
+public extension KeyFrame {
+    
+    private mutating func animate<Value>(keyPath: WritableKeyPath<AnimatableValues, Value>, from: Value, to: Value) {
+        self.from[keyPath: keyPath] = from
+        self.to[keyPath: keyPath] = to
+    }
+    
+    mutating func opacity(from: Double, to: Double) {
+        animate(keyPath: \.opacity, from: from, to: to)
+    }
+    
+    mutating func offsetX(from: CGFloat, to: CGFloat) {
+        animate(keyPath: \.offsetX, from: from, to: to)
+    }
+    
+    mutating func offsetY(from: CGFloat, to: CGFloat) {
+        animate(keyPath: \.offsetY, from: from, to: to)
+    }
+    
+    mutating func scale(from: AnimatableValues.Scale = 1, to: AnimatableValues.Scale) {
+        animate(keyPath: \.scale, from: from, to: to)
+    }
+}
+
+public extension View {
+    
+    func keyFrame(at time: Double = 0.0, makeKeyFrame: (inout KeyFrame) -> Void) -> some View {
+        var keyFrame = KeyFrame(time: time)
+        makeKeyFrame(&keyFrame)
+        return ModifiedContent(content: self, modifier: PropertyAnimationViewModifier(keyFrame))
+    }
 }

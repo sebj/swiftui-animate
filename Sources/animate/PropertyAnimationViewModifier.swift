@@ -1,50 +1,63 @@
+import Foundation
 import SwiftUI
 
-struct PropertyAnimationViewModifier<Value>: ViewModifier where Value: Equatable {
+struct PropertyAnimationViewModifier: ViewModifier {
     
-    @State private var values: AnimatableValues
-    private let animation: PropertyAnimation<Value>
+    @State private var values: AnimatableValues = .init()
+    private let keyFrame: KeyFrame
     
-    init(_ animation: PropertyAnimation<Value>) {
-        self._values = .init(initialValue: animation.from)
-        self.animation = animation
+    init(_ keyFrame: KeyFrame) {
+        // self._values = .init(initialValue: keyFrame.from)
+        self.keyFrame = keyFrame
     }
     
     func body(content: Content) -> some View {
-        ModifiedContent(
-            content: content,
-            modifier: AnimatableValueModifier(property: animation.property, values: values)
-        )
-        .onAppear {
-            guard animation.property != \.identity, animation.to != animation.from else {
-                return
+        let scale = values[keyPath: \.scale]
+        
+        content
+            .offset(
+                x: values[keyPath: \.offsetX],
+                y: values[keyPath: \.offsetY]
+            )
+            .scaleEffect(x: scale.x, y: scale.y, anchor: scale.anchor)
+            .opacity(values[keyPath: \.opacity])
+            .onAppear {
+                guard keyFrame.from != keyFrame.to else {
+                    return
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(keyFrame.time * 1000))) {
+                    values = keyFrame.from
+                    
+                    withAnimation(keyFrame.animation) {
+                        values = keyFrame.to
+                    }
+                }
             }
-
-            withAnimation(animation.animation) {
-                values = animation.to
-            }
-        }
     }
 }
 
-private struct AnimatableValueModifier<Value>: ViewModifier {
-
-    let property: KeyPath<AnimatableValues, Value>
-    let values: AnimatableValues
-
-    func body(content: Content) -> some View {
-        switch property {
-        case \.offsetX:
-            content.offset(x: values[keyPath: \.offsetX])
-        case \.offsetY:
-            content.offset(y: values[keyPath: \.offsetY])
-        case \.scale:
-            let scale = values[keyPath: \.scale]
-            content.scaleEffect(x: scale.x, y: scale.y, anchor: scale.anchor)
-        case \.opacity:
-            content.opacity(values[keyPath: \.opacity])
-        default:
-            content
+extension AnimatableValues {
+    
+    enum Property {
+        case opacity
+        case offsetX
+        case offsetY
+        case scale
+        case identity
+    }
+    
+    func propertyChanged(from: Self) -> Property {
+        if (from.opacity != self.opacity) {
+            return .opacity
+        } else if (from.offsetX != self.offsetX) {
+            return .offsetX
+        } else if (from.offsetY != self.offsetY) {
+            return .offsetY
+        } else if (from.scale != self.scale) {
+            return .scale
         }
+        
+        return .identity
     }
 }

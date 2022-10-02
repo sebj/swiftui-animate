@@ -2,7 +2,7 @@ import SwiftUI
 
 public struct AnimatableValues: Equatable {
     
-    var identity = true
+    var identity = false
     
     public var opacity: Double = 1
     
