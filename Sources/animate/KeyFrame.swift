@@ -61,7 +61,7 @@ public extension KeyFrame {
         .at(0, configure)
     }
     
-    /// Create a key frame that that occurs at `time` during an animation.
+    /// Create a key frame that that occurs at a specific `time` during an animation.
     static func at(_ time: Double, _ configure: (inout Self) -> Void) -> Self {
         precondition(time >= 0, "Time must be now, or in the future.")
         

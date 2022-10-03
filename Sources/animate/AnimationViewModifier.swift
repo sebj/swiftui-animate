@@ -25,11 +25,17 @@ private struct AnimationView<Content>: View where Content: View {
     private let content: Content
     
     init(keyFrames: [KeyFrame], content: Content) {
-        // I've lost track of why this is necessary, but when I last checked, it worked
+        let sortedKeyFrames = keyFrames.sorted(by: { $0.time < $1.time })
+        let sortedKeyFrameTimes = sortedKeyFrames.map(\.time)
+        if Array(Set(sortedKeyFrameTimes)) != sortedKeyFrameTimes {
+            runtimeWarning("Multiple key frames occur at the same time. Behavior is undefined.")
+        }
+        
+        // I've lost track of why this is necessary
         if keyFrames[0].time == 0 {
-            self.keyFrames = keyFrames + [.empty]
+            self.keyFrames = sortedKeyFrames + [.empty]
         } else {
-            self.keyFrames = [.empty] + keyFrames + [.empty]
+            self.keyFrames = [.empty] + sortedKeyFrames + [.empty]
         }
         
         self.timelineDates = self.keyFrames.map { Date(timeIntervalSinceNow: $0.time) }
