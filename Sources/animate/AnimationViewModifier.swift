@@ -6,33 +6,38 @@ public extension View {
     @ViewBuilder
     func animate(_ keyFrames: KeyFrame...) -> some View {
         if keyFrames.count >= 2 {
-            AnimationViewModifier(keyFrames: keyFrames) { self }
+            AnimationView(keyFrames: keyFrames, content: self)
         } else {
             self.onAppear {
-                print("[Animate]: Animation will not be performed. At least 2 key frames are required.")
+                runtimeWarning("Animation will not be performed. At least 2 key frames are required.")
             }
         }
     }
 }
 
-private struct AnimationViewModifier<Content>: View where Content: View {
+// MARK: -
+
+/// A view that performs a key frame animation when its content appears.
+private struct AnimationView<Content>: View where Content: View {
     
-    let keyFrames: [KeyFrame]
-    let content: Content
+    private let keyFrames: [KeyFrame]
+    private let timelineDates: [Date]
+    private let content: Content
     
-    init(keyFrames: [KeyFrame], @ViewBuilder content: () -> Content) {
+    init(keyFrames: [KeyFrame], content: Content) {
         // I've lost track of why this is necessary, but when I last checked, it worked
         if keyFrames[0].time == 0 {
-            self.keyFrames = keyFrames + [.at(0) { _ in }]
+            self.keyFrames = keyFrames + [.empty]
         } else {
-            self.keyFrames = [.at(0) { _ in }] + keyFrames + [.at(0) { _ in }]
+            self.keyFrames = [.empty] + keyFrames + [.empty]
         }
         
-        self.content = content()
+        self.timelineDates = self.keyFrames.map { Date(timeIntervalSinceNow: $0.time) }
+        self.content = content
     }
     
     var body: some View {
-        TimelineView(.explicit(keyFrames.map { Date(timeIntervalSinceNow: $0.time) })) { timeline in
+        TimelineView(.explicit(timelineDates)) { timeline in
             AnimatorView(frames: keyFrames, date: timeline.date) {
                 content
             }
@@ -42,29 +47,31 @@ private struct AnimationViewModifier<Content>: View where Content: View {
 
 // MARK: -
 
+/// A view that animates between multiple key frames, whenever `date` changes.
 private struct AnimatorView<Content>: View where Content: View {
     
     let frames: [KeyFrame]
     let date: Date
     @ViewBuilder let content: () -> Content
     
-    @State private var frameIndex = 0
+    @State private var currentFrameIndex = 0
     
     var body: some View {
         content()
             .modifier(
                 FrameModifier(
-                    previous: frameIndex == 0 ? nil : frames[frameIndex - 1],
-                    current: frames[frameIndex]
+                    previous: currentFrameIndex == 0 ? nil : frames[currentFrameIndex - 1],
+                    current: frames[currentFrameIndex]
                 )
             )
-            .animation(frames[frameIndex].animation, value: frameIndex)
+            .animation(frames[currentFrameIndex].animation, value: currentFrameIndex)
             .onChange(of: date) { _ in
-                frameIndex += 1
+                currentFrameIndex += 1
             }
     }
 }
 
+/// A view modifier that applies key frame values to a `View`.
 private struct FrameModifier: ViewModifier {
     
     let previous: KeyFrame?
@@ -85,4 +92,8 @@ private struct FrameModifier: ViewModifier {
             )
             .opacity(current.opacity ?? previous?.opacity ?? 1)
     }
+}
+
+private extension KeyFrame {
+    static var empty: Self { .init(time: 0) }
 }
