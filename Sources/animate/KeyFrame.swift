@@ -1,7 +1,10 @@
 import SwiftUI
 
+/// A definition of a view's animatable properties at a given moment in time.
 public struct KeyFrame {
     let time: Double
+    
+    /// The animation to use when transitioning from the previous key frame's values to this key frame's values.
     public var animation = Animation.default
     
     public var opacity: Double?
@@ -53,10 +56,12 @@ public struct KeyFrame {
 
 public extension KeyFrame {
     
+    /// Create a key frame that starts an animation.
     static func start(_ configure: (inout Self) -> Void) -> Self {
         .at(0, configure)
     }
     
+    /// Create a key frame that that occurs at `time` during an animation.
     static func at(_ time: Double, _ configure: (inout Self) -> Void) -> Self {
         precondition(time >= 0, "Time must be now, or in the future.")
         

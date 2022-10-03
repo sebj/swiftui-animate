@@ -2,13 +2,15 @@ import SwiftUI
 
 public extension View {
     
+    /// Adds a key frame animation to perform when this view appears.
     @ViewBuilder
     func animate(_ keyFrames: KeyFrame...) -> some View {
         if keyFrames.count >= 2 {
             AnimationViewModifier(keyFrames: keyFrames) { self }
         } else {
-            // TODO: Log warning
-            self
+            self.onAppear {
+                print("[Animate]: Animation will not be performed. At least 2 key frames are required.")
+            }
         }
     }
 }
