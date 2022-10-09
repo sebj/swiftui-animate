@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "animate",
+    name: "swiftui-animate",
     platforms: [
         .iOS(.v15),
         .macOS(.v12),
