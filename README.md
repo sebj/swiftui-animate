@@ -1,5 +1,9 @@
 # 🎞 Animate
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsebj%2Fswiftui-animate%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/sebj/swiftui-animate)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsebj%2Fswiftui-animate%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/sebj/swiftui-animate)
+[![MIT License](https://img.shields.io/github/license/sebj/steam?color=lightgray)](LICENSE)
+
 A concept to more easily define simple keyframe / multi-step animations in SwiftUI, without:
 * Defining an `@State` value for each property to be animated
 * Using [`asyncAfter`](https://developer.apple.com/documentation/dispatch/dispatchqueue/2300100-asyncafter)
