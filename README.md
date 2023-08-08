@@ -1,5 +1,9 @@
 # 🎞 Animate
 
+### No longer necessary: see the [`keyframeAnimator`](https://developer.apple.com/documentation/swiftui/view/keyframeanimator(initialvalue:trigger:content:keyframes:)) view modifier (and its variants) introduced at WWDC 2023.
+
+---
+
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsebj%2Fswiftui-animate%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/sebj/swiftui-animate)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsebj%2Fswiftui-animate%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/sebj/swiftui-animate)
 [![MIT License](https://img.shields.io/github/license/sebj/steam?color=lightgray)](LICENSE)
